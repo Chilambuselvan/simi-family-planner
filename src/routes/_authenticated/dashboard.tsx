@@ -12,6 +12,8 @@ import { TaskRow } from "@/components/app/task-row";
 import { TaskFormDialog } from "@/components/app/task-form-dialog";
 import { AlertPill } from "@/components/app/alert-pill";
 import { NextPickupsCard, binDayText } from "@/components/app/next-pickups";
+import { WasteIcon } from "@/components/app/waste-icon";
+import type { WasteType } from "@/lib/waste";
 import { EmptyState } from "@/components/app/page-header";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +47,7 @@ function Dashboard() {
           <Stat n={maintenance.filter((i) => maintenanceStatus(i) !== "ok").length + warranties.filter((i) => warrantyStatus(i) !== "ok").length} label="home alerts" />
         </div>
         {nextPickups[0] && wasteStatus(nextPickups[0].pickup_date) === "soon" && (
-          <Link to="/waste" className="mt-4 inline-flex rounded-full bg-primary-foreground/15 px-4 py-1.5 text-sm font-medium backdrop-blur">🗑️ {binDayText(nextPickups[0])}</Link>
+          <Link to="/waste" className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-4 py-1.5 text-sm font-medium backdrop-blur"><WasteIcon type={nextPickups[0].waste_type as WasteType} className="size-4" /> {binDayText(nextPickups[0])}</Link>
         )}
       </section>
 

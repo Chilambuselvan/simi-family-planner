@@ -14,14 +14,14 @@ export const WASTE_LABELS: Record<WasteType, string> = {
 };
 
 /** Colour classes per waste type (semantic tokens from styles.css). */
-export const WASTE_STYLES: Record<WasteType, { pill: string; dot: string }> = {
-  general: { pill: "bg-waste-general/15 text-waste-general", dot: "bg-waste-general" },
-  recycling: { pill: "bg-waste-recycling/20 text-warning-foreground", dot: "bg-waste-recycling" },
-  organic: { pill: "bg-waste-organic/15 text-waste-organic", dot: "bg-waste-organic" },
-  paper: { pill: "bg-waste-paper/15 text-waste-paper", dot: "bg-waste-paper" },
-  bulky: { pill: "bg-accent text-accent-foreground", dot: "bg-terracotta" },
-  seasonal: { pill: "bg-success-soft text-success", dot: "bg-success" },
-  other: { pill: "bg-muted text-muted-foreground", dot: "bg-muted-foreground" },
+export const WASTE_STYLES: Record<WasteType, { pill: string; dot: string; icon: string }> = {
+  general: { pill: "bg-waste-general/15 text-waste-general", dot: "bg-waste-general", icon: "text-waste-general" },
+  recycling: { pill: "bg-waste-recycling/20 text-warning-foreground", dot: "bg-waste-recycling", icon: "text-warning-foreground" },
+  organic: { pill: "bg-waste-organic/15 text-waste-organic", dot: "bg-waste-organic", icon: "text-waste-organic" },
+  paper: { pill: "bg-waste-paper/15 text-waste-paper", dot: "bg-waste-paper", icon: "text-waste-paper" },
+  bulky: { pill: "bg-accent text-accent-foreground", dot: "bg-terracotta", icon: "text-terracotta" },
+  seasonal: { pill: "bg-success-soft text-success", dot: "bg-success", icon: "text-success" },
+  other: { pill: "bg-muted text-muted-foreground", dot: "bg-muted-foreground", icon: "text-muted-foreground" },
 };
 
 /** Distinct glyph per waste type so pickups read at a glance, not only by colour. */
