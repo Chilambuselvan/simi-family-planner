@@ -16,7 +16,7 @@ import { MemberAvatar } from "@/components/app/member-avatar";
 import { EmptyState, PageHeader } from "@/components/app/page-header";
 import { cn } from "@/lib/utils";
 
-type TaskSearch = { assignee?: string; status?: string; category?: string; from?: string; to?: string; view?: "list" | "review" };
+type TaskSearch = { assignee?: string | undefined; status?: string | undefined; category?: string | undefined; from?: string | undefined; to?: string | undefined; view?: "list" | "review" | undefined };
 
 export const Route = createFileRoute("/_authenticated/tasks")({
   validateSearch: (s: Record<string, unknown>): TaskSearch => {

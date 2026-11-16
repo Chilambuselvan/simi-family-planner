@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/inventory/$itemId")({
   head: () => pageHead("Item details", "Warranty, maintenance and service contact for a household item."),
   component: ItemDetail,
   notFoundComponent: () => <p>Item not found.</p>,
-  errorComponent: ({ error }) => <p role="alert">{error.message}</p>,
+  errorComponent: ({ error }) => <p role="alert">{(error as Error).message}</p>,
 });
 
 const fmt = (d: string | null) => (d ? format(parseISO(d), "d MMM yyyy") : "—");

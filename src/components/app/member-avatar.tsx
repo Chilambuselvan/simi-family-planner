@@ -15,7 +15,7 @@ export function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("") || "?";
 }
 
-export function MemberAvatar({ profile, size = "md", className }: { profile?: Pick<Profile, "display_name" | "avatar_color"> | null; size?: "sm" | "md" | "lg"; className?: string }) {
+export function MemberAvatar({ profile, size = "md", className }: { profile?: Pick<Profile, "display_name" | "avatar_color"> | null | undefined; size?: "sm" | "md" | "lg"; className?: string }) {
   const color = MEMBER_COLORS[(profile?.avatar_color as MemberColor) ?? "slate"] ?? MEMBER_COLORS.slate;
   const sz = size === "sm" ? "size-6 text-[10px]" : size === "lg" ? "size-12 text-base" : "size-8 text-xs";
   return (

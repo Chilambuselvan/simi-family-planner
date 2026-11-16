@@ -1,4 +1,4 @@
-export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: React.ReactNode }) {
+export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string | undefined; actions?: React.ReactNode }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
@@ -10,7 +10,7 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   );
 }
 
-export function EmptyState({ title, hint, action }: { title: string; hint?: string; action?: React.ReactNode }) {
+export function EmptyState({ title, hint, action }: { title: string; hint?: string | undefined; action?: React.ReactNode }) {
   return (
     <div className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-10 text-center">
       <p className="font-medium">{title}</p>

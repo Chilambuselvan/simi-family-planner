@@ -44,7 +44,7 @@ export function useTaskActions() {
 
 const priorityDot = { high: "bg-destructive", medium: "bg-warning", low: "bg-member-sage" } as Record<string, string>;
 
-export function TaskRow({ task, assignee, onEdit, showAssignee = true }: { task: Task; assignee?: Profile; onEdit: (t: Task) => void; showAssignee?: boolean }) {
+export function TaskRow({ task, assignee, onEdit, showAssignee = true }: { task: Task; assignee?: Profile | undefined; onEdit: (t: Task) => void; showAssignee?: boolean }) {
   const { complete, snooze } = useTaskActions();
   const overdue = isTaskOverdue(task);
   const isDone = task.status === "done";

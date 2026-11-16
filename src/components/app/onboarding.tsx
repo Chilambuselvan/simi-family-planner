@@ -17,7 +17,7 @@ export function Onboarding({ name }: { name: string }) {
     setBusy(true);
     const { error } = await fn();
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     await qc.invalidateQueries();
     toast.success("Welcome to your HomeBase!");
   }
