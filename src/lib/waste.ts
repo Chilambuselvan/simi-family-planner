@@ -28,11 +28,11 @@ const RULES: [WasteType, string[]][] = [
   ["organic", ["biogut", "bioabfall"]],
   ["paper", ["papier"]],
   ["bulky", ["sperrmüll"]],
-  ["seasonal", ["weihnachtsbaum"]],
+  ["seasonal", ["weihnachtsbaum", "weihnachtsbäum"]],
 ];
 
 export function categorizeWaste(text: string): WasteType {
-  const t = text.toLowerCase();
+  const t = text.normalize("NFC").toLowerCase();
   for (const [type, words] of RULES) if (words.some((w) => t.includes(w))) return type;
   return "other";
 }
