@@ -34,3 +34,4 @@ use the editor.
 - Alert/date rules (overdue, service due, warranty expiring, recurrence) live in `src/lib/household.ts` with tests. Why: dashboard, review, calendar and bell must agree.
 - Calendar events come from `CalendarSource`s in `src/lib/calendar-sources.ts`; external feeds plug in as a new source. Why: OAuth calendars are planned later.
 - Item photos are stored in the private `item-photos` bucket under `<family_id>/...` and shown via signed URLs. Why: storage RLS keys off the first folder.
+- Waste pickups enter only via client-side .ics import (`src/lib/waste.ts` parser/categoriser, tested); dedupe key is (family_id, waste_type, pickup_date). Why: German providers publish yearly fixed-date files, no API.
