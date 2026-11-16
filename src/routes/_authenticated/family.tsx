@@ -105,7 +105,7 @@ function AddressForm({ family }: { family: Family }) {
   }));
   const save = useMutation({
     mutationFn: async () => {
-      const clean = Object.fromEntries(Object.entries(addr).map(([k, v]) => [k, v.trim() || null]));
+      const clean = Object.fromEntries(Object.entries(addr).map(([k, v]) => [k, v.trim() || null])) as Partial<Record<AddressKey, string | null>>;
       const { error } = await supabase.from("families").update(clean).eq("id", family.id);
       if (error) throw error;
     },

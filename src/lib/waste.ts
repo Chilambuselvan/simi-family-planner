@@ -41,7 +41,7 @@ export function categorizeWaste(text: string): WasteType {
 export function extractProvider(text: string): string | null {
   const m = text.match(/\(([^)]+)\)/);
   if (!m) return null;
-  const p = m[1].replace(/^\s*abholung\s+durch\s+/i, "").trim();
+  const p = (m[1] ?? "").replace(/^\s*abholung\s+durch\s+/i, "").trim();
   return p || null;
 }
 
@@ -65,7 +65,7 @@ export function parseIcs(text: string): IcsEvent[] {
     if (!cur) continue;
     const idx = line.indexOf(":");
     if (idx < 0) continue;
-    const name = line.slice(0, idx).split(";")[0].toUpperCase();
+    const name = (line.slice(0, idx).split(";")[0] ?? "").toUpperCase();
     const value = line.slice(idx + 1);
     if (name === "UID") cur.uid = value.trim();
     else if (name === "SUMMARY") cur.summary = unescape(value);
