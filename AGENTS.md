@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Family scoping: every family-owned table has `family_id` and RLS `family_id = public.current_family_id()`; users join families only via the `create_family`/`join_family` RPCs. Why: keeps all data isolated per family without client trust.
+- Alert/date rules (overdue, service due, warranty expiring, recurrence) live in `src/lib/household.ts` with tests. Why: dashboard, review, calendar and bell must agree.
+- Calendar events come from `CalendarSource`s in `src/lib/calendar-sources.ts`; external feeds plug in as a new source. Why: OAuth calendars are planned later.
+- Item photos are stored in the private `item-photos` bucket under `<family_id>/...` and shown via signed URLs. Why: storage RLS keys off the first folder.
