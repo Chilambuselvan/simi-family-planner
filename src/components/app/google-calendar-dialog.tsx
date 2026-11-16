@@ -125,7 +125,7 @@ function AccountCard({ account, owner, isMine, familyId, defaultExpanded }: {
 
       {account.external_calendars.length > 0 && (
         <ul className="mt-3 grid gap-2">
-          {account.external_calendars.map((c) => <SharedCalendarRow key={c.id} cal={c} />)}
+          {account.external_calendars.map((c) => <SharedCalendarRow key={c.id} cal={c} canEdit={isMine} />)}
         </ul>
       )}
       {account.external_calendars.length === 0 && !expanded && (
@@ -135,8 +135,8 @@ function AccountCard({ account, owner, isMine, familyId, defaultExpanded }: {
   );
 }
 
-/** Any family member can hide/show a shared calendar or change its colour. */
-function SharedCalendarRow({ cal }: { cal: ExternalCalendar }) {
+/** Only the account owner can hide/show a shared calendar or change its colour; others just see it. */
+function SharedCalendarRow({ cal, canEdit }: { cal: ExternalCalendar; canEdit: boolean }) {
   const qc = useQueryClient();
   const update = useMutation({
     mutationFn: async (patch: Partial<Pick<ExternalCalendar, "enabled" | "color">>) => {
@@ -149,15 +149,15 @@ function SharedCalendarRow({ cal }: { cal: ExternalCalendar }) {
 
   return (
     <li className="flex flex-wrap items-center gap-2 text-sm">
-      <Switch checked={cal.enabled} onCheckedChange={(enabled) => update.mutate({ enabled })} aria-label={`Show ${cal.name}`} />
+      <Switch disabled={!canEdit} checked={cal.enabled} onCheckedChange={(enabled) => update.mutate({ enabled })} aria-label={`Show ${cal.name}`} />
       <span className={cn("min-w-0 flex-1 truncate", !cal.enabled && "text-muted-foreground")}>{cal.name}</span>
-      <div className="flex gap-1">
+      {canEdit ? <div className="flex gap-1">
         {GOOGLE_COLORS.map((color) => (
           <button key={color} type="button" aria-label={`Colour ${color}`} onClick={() => update.mutate({ color })}
             className={cn("size-4 rounded-full ring-offset-2 ring-offset-card", cal.color.toLowerCase() === color.toLowerCase() && "ring-2 ring-foreground")}
             style={{ backgroundColor: color }} />
         ))}
-      </div>
+      </div> : <span className="size-3 shrink-0 rounded-full" style={{ backgroundColor: cal.color }} />}
     </li>
   );
 }

@@ -395,6 +395,7 @@ export type Database = {
       create_family: { Args: { _name: string }; Returns: string }
       current_family_id: { Args: never; Returns: string }
       join_family: { Args: { _code: string }; Returns: string }
+      owns_google_account: { Args: { _account_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
