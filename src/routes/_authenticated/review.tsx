@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { AlertTriangle, CalendarClock, ShieldAlert, Wrench } from "lucide-react";
+import { AlertTriangle, CalendarClock, ShieldAlert, Trash2, Wrench } from "lucide-react";
 import { meQuery, membersQuery, type Task } from "@/lib/queries";
 import { pageHead } from "@/lib/head";
 import { useDigest } from "@/lib/use-digest";

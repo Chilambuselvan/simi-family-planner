@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { meQuery, membersQuery } from "@/lib/queries";
+import { meQuery, membersQuery, type Family } from "@/lib/queries";
 import { pageHead } from "@/lib/head";
 import { MemberAvatar, MEMBER_COLORS, type MemberColor } from "@/components/app/member-avatar";
 import { PageHeader } from "@/components/app/page-header";
@@ -73,6 +73,7 @@ function FamilyPage() {
           </form>
         </section>
       </div>
+      {me.family && <AddressForm family={me.family} />}
       <section className="mt-6">
         <h2 className="mb-3 text-xl font-semibold">Connections <span className="text-sm font-normal text-muted-foreground">— coming soon</span></h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -85,5 +86,42 @@ function FamilyPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+const ADDRESS_FIELDS = [
+  ["street", "Street", "sm:col-span-3"],
+  ["house_number", "House number", "sm:col-span-1"],
+  ["postal_code", "Postal code", "sm:col-span-1"],
+  ["city", "City", "sm:col-span-2"],
+  ["country", "Country", "sm:col-span-1"],
+] as const;
+type AddressKey = (typeof ADDRESS_FIELDS)[number][0];
+
+function AddressForm({ family }: { family: Family }) {
+  const qc = useQueryClient();
+  const [addr, setAddr] = useState<Record<AddressKey, string>>(() => ({
+    street: family.street ?? "", house_number: family.house_number ?? "", postal_code: family.postal_code ?? "", city: family.city ?? "", country: family.country ?? "",
+  }));
+  const save = useMutation({
+    mutationFn: async () => {
+      const clean = Object.fromEntries(Object.entries(addr).map(([k, v]) => [k, v.trim() || null]));
+      const { error } = await supabase.from("families").update(clean).eq("id", family.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["me"] }); toast.success("Address saved"); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  return (
+    <section className="card-surface mt-6 p-5">
+      <h2 className="text-lg font-semibold">House address</h2>
+      <p className="text-sm text-muted-foreground">Handy when downloading your waste calendar from your provider.</p>
+      <form className="mt-3 grid gap-3 sm:grid-cols-4" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
+        {ADDRESS_FIELDS.map(([k, label, span]) => (
+          <div key={k} className={cn("grid gap-1.5", span)}><Label htmlFor={`a-${k}`}>{label}</Label><Input id={`a-${k}`} value={addr[k]} onChange={(e) => setAddr({ ...addr, [k]: e.target.value })} /></div>
+        ))}
+        <div className="sm:col-span-4"><Button type="submit" disabled={save.isPending}>Save address</Button></div>
+      </form>
+    </section>
   );
 }
