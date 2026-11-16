@@ -35,3 +35,4 @@ use the editor.
 - Calendar events come from `CalendarSource`s in `src/lib/calendar-sources.ts`; external feeds plug in as a new source. Why: OAuth calendars are planned later.
 - Item photos are stored in the private `item-photos` bucket under `<family_id>/...` and shown via signed URLs. Why: storage RLS keys off the first folder.
 - Waste pickups enter only via client-side .ics import (`src/lib/waste.ts` parser/categoriser, tested); dedupe key is (family_id, waste_type, pickup_date). Why: German providers publish yearly fixed-date files, no API.
+- Google Calendar: only the owning user (`public.owns_google_account`) may write `external_calendars` rows for their account; tokens in `google_account_tokens` are AES-GCM encrypted via `src/lib/token-crypto.ts` with `GOOGLE_TOKEN_ENCRYPTION_KEY`. Why: family members must not pull each other's private calendars, and DB readers must not see Google tokens.
