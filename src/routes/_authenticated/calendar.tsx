@@ -6,6 +6,8 @@ import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { itemsQuery, membersQuery, tasksQuery, wastePickupsQuery } from "@/lib/queries";
 import { calendarSources, type CalendarEvent } from "@/lib/calendar-sources";
+import { WASTE_STYLES, type WasteType } from "@/lib/waste";
+import { WasteIcon } from "@/components/app/waste-icon";
 import { pageHead } from "@/lib/head";
 import { toISODate } from "@/lib/household";
 import { PageHeader } from "@/components/app/page-header";
@@ -77,10 +79,10 @@ function CalendarPage() {
                   selected === iso ? "border-primary bg-secondary/50" : "border-transparent hover:bg-muted", view === "month" && !isSameMonth(d, cursor) && "opacity-40")}>
                 <span className={cn("mb-1 flex size-6 items-center justify-center self-center rounded-full text-xs font-semibold md:self-start", isToday(d) && "bg-primary text-primary-foreground")}>{format(d, "d")}</span>
                 <div className="hidden flex-col gap-0.5 md:flex">
-                  {evs.slice(0, view === "month" ? 2 : 6).map((e) => <span key={e.id} className={cn("truncate rounded px-1 py-0.5 text-[11px]", kindStyle[e.kind], e.done && "line-through opacity-60")}>{e.title}</span>)}
+                  {evs.slice(0, view === "month" ? 2 : 6).map((e) => <span key={e.id} className={cn("flex min-w-0 items-center gap-1 rounded px-1 py-0.5 text-[11px]", kindStyle[e.kind], e.done && "line-through opacity-60")}>{e.kind === "waste" && e.wasteType && <WasteIcon type={e.wasteType} className="size-3" />}<span className="truncate">{e.title}</span></span>)}
                   {evs.length > (view === "month" ? 2 : 6) && <span className="text-[11px] text-muted-foreground">+{evs.length - (view === "month" ? 2 : 6)} more</span>}
                 </div>
-                <div className="flex justify-center gap-0.5 md:hidden">{evs.slice(0, 3).map((e) => <span key={e.id} className={cn("size-1.5 rounded-full", e.kind === "task" ? "bg-primary" : e.kind === "maintenance" ? "bg-terracotta" : e.kind === "waste" ? "bg-waste-paper" : "bg-warning")} />)}</div>
+                <div className="flex justify-center gap-0.5 md:hidden">{evs.slice(0, 3).map((e) => <span key={e.id} className={cn("size-1.5 rounded-full", e.kind === "task" ? "bg-primary" : e.kind === "maintenance" ? "bg-terracotta" : e.kind === "waste" ? WASTE_STYLES[e.wasteType as WasteType]?.dot ?? "bg-waste-paper" : "bg-warning")} />)}</div>
               </button>
             );
           })}
@@ -94,7 +96,7 @@ function CalendarPage() {
             {selectedEvents.map((e) => (
               <li key={e.id}>
                 <Link {...(e.href ?? { to: "/tasks" })} className="flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 hover:border-primary/30">
-                  <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium capitalize", kindStyle[e.kind])}>{e.kind}</span>
+                  <span className={cn("flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium capitalize", kindStyle[e.kind])}>{e.kind === "waste" && e.wasteType && <WasteIcon type={e.wasteType} className="size-3" />}{e.kind}</span>
                   <span className={cn("flex-1 font-medium", e.done && "line-through opacity-60")}>{e.title}</span>
                   {e.kind === "task" && <MemberAvatar profile={byId[e.assigneeId ?? ""]} size="sm" />}
                 </Link>

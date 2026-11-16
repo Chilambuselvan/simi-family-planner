@@ -12,6 +12,7 @@ import { daysUntil, nextPickupByType, relativeDay, wasteStatus } from "@/lib/hou
 import { eventsToPickups, parseIcs, WASTE_LABELS, WASTE_STYLES, WASTE_TYPES, type WasteType } from "@/lib/waste";
 import { PageHeader, EmptyState } from "@/components/app/page-header";
 import { AlertPill } from "@/components/app/alert-pill";
+import { WasteIcon } from "@/components/app/waste-icon";
 import { NextPickupsList } from "@/components/app/next-pickups";
 import { cn } from "@/lib/utils";
 
@@ -81,7 +82,8 @@ function WastePage() {
           <div>
             <div className="mb-4 flex flex-wrap gap-2">
               {(["all", ...presentTypes] as const).map((t) => (
-                <button key={t} onClick={() => setFilter(t)} className={cn("rounded-full px-3 py-1.5 text-sm font-medium", filter === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                <button key={t} onClick={() => setFilter(t)} className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium", filter === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                  {t !== "all" && <WasteIcon type={t} className="size-4" />}
                   {t === "all" ? "All" : WASTE_LABELS[t]}
                 </button>
               ))}
@@ -96,7 +98,8 @@ function WastePage() {
                     </div>
                     <div className="flex flex-1 flex-wrap gap-2">
                       {list.map((p) => (
-                        <span key={p.id} className={cn("rounded-full px-3 py-1 text-sm font-medium", WASTE_STYLES[p.waste_type as WasteType]?.pill)} title={p.label}>
+                        <span key={p.id} className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium", WASTE_STYLES[p.waste_type as WasteType]?.pill)} title={p.label}>
+                          <WasteIcon type={p.waste_type as WasteType} className="size-4" />
                           {WASTE_LABELS[p.waste_type as WasteType] ?? p.label}{p.provider && <span className="opacity-70"> · {p.provider}</span>}
                         </span>
                       ))}

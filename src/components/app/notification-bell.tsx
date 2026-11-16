@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useDigest } from "@/lib/use-digest";
+import { WasteIcon } from "./waste-icon";
+import type { WasteType } from "@/lib/waste";
 import { maintenanceStatus, warrantyStatus, wasteStatus } from "@/lib/household";
 
 /** In-app reminder indicator. Push notifications can hook into the same digest later. */
@@ -10,11 +12,12 @@ export function NotificationBell() {
   const maint = items.filter((i) => maintenanceStatus(i) !== "ok").length;
   const warr = items.filter((i) => warrantyStatus(i) === "soon").length;
   const bins = nextPickups.filter((p) => wasteStatus(p.pickup_date) === "soon").length;
-  const rows = [
+  const binTypes = [...new Set(nextPickups.filter((p) => wasteStatus(p.pickup_date) === "soon").map((p) => p.waste_type as WasteType))].slice(0, 3);
+  const rows: { n: number; label: string; plural?: string; to: "/tasks" | "/inventory" | "/waste"; icon?: React.ReactNode }[] = [
     { n: overdue.length, label: "overdue task", to: "/tasks" as const },
     { n: maint, label: "item needs servicing", plural: "items need servicing", to: "/inventory" as const },
     { n: warr, label: "warranty expiring soon", plural: "warranties expiring soon", to: "/inventory" as const },
-    { n: bins, label: "bin pickup in the next 2 days", plural: "bin pickups in the next 2 days", to: "/waste" as const },
+    { n: bins, label: "bin pickup in the next 2 days", plural: "bin pickups in the next 2 days", to: "/waste" as const, icon: binTypes.map((t) => <WasteIcon key={t} type={t} className="size-4" />) },
   ].filter((r) => r.n > 0);
   return (
     <Popover>
@@ -30,6 +33,7 @@ export function NotificationBell() {
               <li key={r.label}><Link to={r.to} className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-muted">
                 <span className="flex size-6 items-center justify-center rounded-full bg-danger-soft text-xs font-bold text-destructive">{r.n}</span>
                 {r.n === 1 ? r.label : r.plural ?? `${r.label}s`}
+                {r.icon && <span className="ml-auto flex items-center gap-1 text-muted-foreground">{r.icon}</span>}
               </Link></li>
             ))}
           </ul>
