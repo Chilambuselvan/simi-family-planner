@@ -36,6 +36,13 @@
       "when": 1794857775158,
       "tag": "0004_google_calendar_sync_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794870720367,
+      "tag": "0005_external_calendars_owner_only_writes",
+      "breakpoints": true
     }
   ]
 }
