@@ -8,6 +8,8 @@ export type Task = Tables<"tasks">;
 export type Item = Tables<"items">;
 export type ItemCategory = Tables<"item_categories">;
 export type WastePickup = Tables<"waste_pickups">;
+export type ExternalCalendar = Tables<"external_calendars">;
+export type GoogleAccount = Tables<"google_accounts"> & { external_calendars: ExternalCalendar[] };
 
 export const meQuery = queryOptions({
   queryKey: ["me"],
@@ -58,6 +60,16 @@ export const wastePickupsQuery = queryOptions({
     const { data, error } = await supabase.from("waste_pickups").select("*").order("pickup_date");
     if (error) throw error;
     return data;
+  },
+});
+
+/** Connected Google accounts in the family, with the calendars chosen from each. */
+export const googleAccountsQuery = queryOptions({
+  queryKey: ["google_accounts"],
+  queryFn: async () => {
+    const { data, error } = await supabase.from("google_accounts").select("*, external_calendars(*)").order("created_at");
+    if (error) throw error;
+    return data as GoogleAccount[];
   },
 });
 

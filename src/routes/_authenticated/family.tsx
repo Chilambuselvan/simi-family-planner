@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/family")({
 });
 
 const upcoming = [
-  { icon: CalendarDays, name: "Google / Microsoft 365 calendar", text: "Show family calendars alongside tasks." },
+  { icon: CalendarDays, name: "Microsoft 365 calendar", text: "Show Outlook calendars alongside tasks (Google Calendar is live on the Calendar page)." },
   { icon: Flame, name: "Viessmann heat pump", text: "Live status and service alerts." },
   { icon: Sun, name: "Enpal solar / PV", text: "Production and system health." },
   { icon: Car, name: "Tesla", text: "Charge level and service reminders." },

@@ -3,9 +3,9 @@ import { WASTE_LABELS, type WasteType } from "./waste";
 import { nextServiceDate } from "./household";
 
 /**
- * Calendar events come from pluggable sources. Tasks and maintenance are built in;
- * an external feed (Google / Microsoft 365) can later be added as another source
- * that returns the same CalendarEvent shape.
+ * Calendar events come from pluggable sources. Tasks, maintenance and bins are built in;
+ * Google Calendar events are fetched on the server (see google-calendar.functions.ts)
+ * and passed in as `external`. Another feed (e.g. Microsoft 365) can be added the same way.
  */
 export type CalendarEvent = {
   id: string;
@@ -16,6 +16,13 @@ export type CalendarEvent = {
   wasteType?: WasteType;
   assigneeId?: string | null;
   done?: boolean;
+  /** HH:mm start time for timed external events. */
+  time?: string | undefined;
+  /** Hex colour for external calendars. */
+  color?: string | undefined;
+  calendarName?: string | undefined;
+  /** Opens outside the app (e.g. the event in Google Calendar). */
+  externalUrl?: string | undefined;
   href?: { to: "/inventory/$itemId"; params: { itemId: string } } | { to: "/tasks" } | { to: "/waste" };
 };
 
@@ -23,7 +30,7 @@ export type CalendarSource = {
   id: string;
   label: string;
   available: boolean;
-  getEvents: (ctx: { tasks: Task[]; items: Item[]; waste: WastePickup[] }) => CalendarEvent[];
+  getEvents: (ctx: { tasks: Task[]; items: Item[]; waste: WastePickup[]; external: CalendarEvent[] }) => CalendarEvent[];
 };
 
 export const tasksSource: CalendarSource = {
@@ -77,12 +84,12 @@ export const wastePickupsSource: CalendarSource = {
     })),
 };
 
-/** Placeholder for a future Google / Microsoft 365 feed. Not connected yet. */
-export const externalCalendarSource: CalendarSource = {
-  id: "external",
-  label: "External calendar",
-  available: false,
-  getEvents: () => [],
+/** Google Calendar events, already fetched and mapped server-side. */
+export const googleCalendarSource: CalendarSource = {
+  id: "google",
+  label: "Google Calendar",
+  available: true,
+  getEvents: ({ external }) => external,
 };
 
-export const calendarSources = [tasksSource, maintenanceSource, wastePickupsSource, externalCalendarSource];
+export const calendarSources = [tasksSource, maintenanceSource, wastePickupsSource, googleCalendarSource];
