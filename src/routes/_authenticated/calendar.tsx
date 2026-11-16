@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { addDays, addMonths, addWeeks, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfWeek } from "date-fns";
 import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { itemsQuery, membersQuery, tasksQuery } from "@/lib/queries";
+import { itemsQuery, membersQuery, tasksQuery, wastePickupsQuery } from "@/lib/queries";
 import { calendarSources, type CalendarEvent } from "@/lib/calendar-sources";
 import { pageHead } from "@/lib/head";
 import { toISODate } from "@/lib/household";
@@ -13,7 +13,7 @@ import { MemberAvatar } from "@/components/app/member-avatar";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/calendar")({
-  head: () => pageHead("Calendar", "Task due dates, maintenance and warranty dates on one family calendar."),
+  head: () => pageHead("Calendar", "Task due dates, bin days, maintenance and warranty dates on one family calendar."),
   component: CalendarPage,
 });
 
@@ -21,6 +21,7 @@ const kindStyle: Record<CalendarEvent["kind"], string> = {
   task: "bg-secondary text-secondary-foreground",
   maintenance: "bg-accent text-accent-foreground",
   warranty: "bg-warning-soft text-warning-foreground",
+  waste: "bg-waste-paper/15 text-waste-paper",
   external: "bg-muted text-muted-foreground",
 };
 
@@ -28,12 +29,13 @@ function CalendarPage() {
   const { data: tasks } = useSuspenseQuery(tasksQuery);
   const { data: items } = useSuspenseQuery(itemsQuery);
   const { data: members } = useSuspenseQuery(membersQuery);
+  const { data: waste } = useSuspenseQuery(wastePickupsQuery);
   const byId = Object.fromEntries(members.map((m) => [m.id, m]));
   const [view, setView] = useState<"month" | "week">("month");
   const [cursor, setCursor] = useState(new Date());
   const [selected, setSelected] = useState(toISODate(new Date()));
 
-  const events = useMemo(() => calendarSources.filter((s) => s.available).flatMap((s) => s.getEvents({ tasks, items })), [tasks, items]);
+  const events = useMemo(() => calendarSources.filter((s) => s.available).flatMap((s) => s.getEvents({ tasks, items, waste })), [tasks, items, waste]);
   const byDate = useMemo(() => {
     const map: Record<string, CalendarEvent[]> = {};
     for (const e of events) (map[e.date] ??= []).push(e);
@@ -78,7 +80,7 @@ function CalendarPage() {
                   {evs.slice(0, view === "month" ? 2 : 6).map((e) => <span key={e.id} className={cn("truncate rounded px-1 py-0.5 text-[11px]", kindStyle[e.kind], e.done && "line-through opacity-60")}>{e.title}</span>)}
                   {evs.length > (view === "month" ? 2 : 6) && <span className="text-[11px] text-muted-foreground">+{evs.length - (view === "month" ? 2 : 6)} more</span>}
                 </div>
-                <div className="flex justify-center gap-0.5 md:hidden">{evs.slice(0, 3).map((e) => <span key={e.id} className={cn("size-1.5 rounded-full", e.kind === "task" ? "bg-primary" : e.kind === "maintenance" ? "bg-terracotta" : "bg-warning")} />)}</div>
+                <div className="flex justify-center gap-0.5 md:hidden">{evs.slice(0, 3).map((e) => <span key={e.id} className={cn("size-1.5 rounded-full", e.kind === "task" ? "bg-primary" : e.kind === "maintenance" ? "bg-terracotta" : e.kind === "waste" ? "bg-waste-paper" : "bg-warning")} />)}</div>
               </button>
             );
           })}

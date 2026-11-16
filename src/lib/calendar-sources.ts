@@ -1,4 +1,5 @@
-import type { Item, Task } from "./queries";
+import type { Item, Task, WastePickup } from "./queries";
+import { WASTE_LABELS, type WasteType } from "./waste";
 import { nextServiceDate } from "./household";
 
 /**
@@ -10,18 +11,18 @@ export type CalendarEvent = {
   id: string;
   title: string;
   date: string; // yyyy-MM-dd
-  kind: "task" | "maintenance" | "warranty" | "external";
+  kind: "task" | "maintenance" | "warranty" | "waste" | "external";
   source: string;
   assigneeId?: string | null;
   done?: boolean;
-  href?: { to: "/inventory/$itemId"; params: { itemId: string } } | { to: "/tasks" };
+  href?: { to: "/inventory/$itemId"; params: { itemId: string } } | { to: "/tasks" } | { to: "/waste" };
 };
 
 export type CalendarSource = {
   id: string;
   label: string;
   available: boolean;
-  getEvents: (ctx: { tasks: Task[]; items: Item[] }) => CalendarEvent[];
+  getEvents: (ctx: { tasks: Task[]; items: Item[]; waste: WastePickup[] }) => CalendarEvent[];
 };
 
 export const tasksSource: CalendarSource = {
@@ -59,6 +60,21 @@ export const maintenanceSource: CalendarSource = {
     }),
 };
 
+export const wastePickupsSource: CalendarSource = {
+  id: "waste",
+  label: "Bin collections",
+  available: true,
+  getEvents: ({ waste }) =>
+    waste.map((w) => ({
+      id: `waste-${w.id}`,
+      title: `Bin: ${WASTE_LABELS[w.waste_type as WasteType] ?? w.label}`,
+      date: w.pickup_date,
+      kind: "waste",
+      source: "waste",
+      href: { to: "/waste" },
+    })),
+};
+
 /** Placeholder for a future Google / Microsoft 365 feed. Not connected yet. */
 export const externalCalendarSource: CalendarSource = {
   id: "external",
@@ -67,4 +83,4 @@ export const externalCalendarSource: CalendarSource = {
   getEvents: () => [],
 };
 
-export const calendarSources = [tasksSource, maintenanceSource, externalCalendarSource];
+export const calendarSources = [tasksSource, maintenanceSource, wastePickupsSource, externalCalendarSource];

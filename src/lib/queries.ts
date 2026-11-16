@@ -7,6 +7,7 @@ export type Family = Tables<"families">;
 export type Task = Tables<"tasks">;
 export type Item = Tables<"items">;
 export type ItemCategory = Tables<"item_categories">;
+export type WastePickup = Tables<"waste_pickups">;
 
 export const meQuery = queryOptions({
   queryKey: ["me"],
@@ -46,6 +47,15 @@ export const itemsQuery = queryOptions({
   queryKey: ["items"],
   queryFn: async () => {
     const { data, error } = await supabase.from("items").select("*").order("name");
+    if (error) throw error;
+    return data;
+  },
+});
+
+export const wastePickupsQuery = queryOptions({
+  queryKey: ["waste_pickups"],
+  queryFn: async () => {
+    const { data, error } = await supabase.from("waste_pickups").select("*").order("pickup_date");
     if (error) throw error;
     return data;
   },
