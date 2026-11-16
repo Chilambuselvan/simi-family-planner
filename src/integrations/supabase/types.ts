@@ -14,13 +14,219 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      families: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          invite_code: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invite_code?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          invite_code?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      item_categories: {
+        Row: {
+          icon: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          icon?: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          icon?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      items: {
+        Row: {
+          category: string
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string | null
+          family_id: string
+          id: string
+          last_serviced: string | null
+          location: string | null
+          maintenance_interval_months: number | null
+          name: string
+          notes: string | null
+          photo_path: string | null
+          purchase_date: string | null
+          warranty_expiry: string | null
+        }
+        Insert: {
+          category?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          family_id: string
+          id?: string
+          last_serviced?: string | null
+          location?: string | null
+          maintenance_interval_months?: number | null
+          name: string
+          notes?: string | null
+          photo_path?: string | null
+          purchase_date?: string | null
+          warranty_expiry?: string | null
+        }
+        Update: {
+          category?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          family_id?: string
+          id?: string
+          last_serviced?: string | null
+          location?: string | null
+          maintenance_interval_months?: number | null
+          name?: string
+          notes?: string | null
+          photo_path?: string | null
+          purchase_date?: string | null
+          warranty_expiry?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "items_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_color: string
+          created_at: string
+          display_name: string
+          family_id: string | null
+          id: string
+        }
+        Insert: {
+          avatar_color?: string
+          created_at?: string
+          display_name?: string
+          family_id?: string | null
+          id: string
+        }
+        Update: {
+          avatar_color?: string
+          created_at?: string
+          display_name?: string
+          family_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assignee_id: string | null
+          category: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          family_id: string
+          id: string
+          priority: string
+          recurrence: string
+          status: string
+          title: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          family_id: string
+          id?: string
+          priority?: string
+          recurrence?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          assignee_id?: string | null
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          family_id?: string
+          id?: string
+          priority?: string
+          recurrence?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_family: { Args: { _name: string }; Returns: string }
+      current_family_id: { Args: never; Returns: string }
+      join_family: { Args: { _code: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
