@@ -14,10 +14,10 @@ export function NotificationBell() {
   const bins = nextPickups.filter((p) => wasteStatus(p.pickup_date) === "soon").length;
   const binTypes = [...new Set(nextPickups.filter((p) => wasteStatus(p.pickup_date) === "soon").map((p) => p.waste_type as WasteType))].slice(0, 3);
   const rows: { n: number; label: string; plural?: string; to: "/tasks" | "/inventory" | "/waste"; icon?: React.ReactNode }[] = [
-    { n: overdue.length, label: "overdue task", to: "/tasks" },
-    { n: maint, label: "item needs servicing", plural: "items need servicing", to: "/inventory" },
-    { n: warr, label: "warranty expiring soon", plural: "warranties expiring soon", to: "/inventory" },
-    { n: bins, label: "bin pickup in the next 2 days", plural: "bin pickups in the next 2 days", to: "/waste", icon: binTypes.map((t) => <WasteIcon key={t} type={t} className="size-4" />) },
+    { n: overdue.length, label: "overdue task", to: "/tasks" as const },
+    { n: maint, label: "item needs servicing", plural: "items need servicing", to: "/inventory" as const },
+    { n: warr, label: "warranty expiring soon", plural: "warranties expiring soon", to: "/inventory" as const },
+    { n: bins, label: "bin pickup in the next 2 days", plural: "bin pickups in the next 2 days", to: "/waste" as const, icon: binTypes.map((t) => <WasteIcon key={t} type={t} className="size-4" />) },
   ].filter((r) => r.n > 0);
   return (
     <Popover>
