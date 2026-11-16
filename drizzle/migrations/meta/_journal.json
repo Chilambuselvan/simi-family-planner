@@ -15,6 +15,13 @@
       "when": 1794831725238,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794833894571,
+      "tag": "0002_waste_pickups_and_address",
+      "breakpoints": true
     }
   ]
 }

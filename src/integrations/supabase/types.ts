@@ -16,25 +16,40 @@ export type Database = {
     Tables: {
       families: {
         Row: {
+          city: string | null
+          country: string | null
           created_at: string
           created_by: string | null
+          house_number: string | null
           id: string
           invite_code: string
           name: string
+          postal_code: string | null
+          street: string | null
         }
         Insert: {
+          city?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
+          house_number?: string | null
           id?: string
           invite_code?: string
           name: string
+          postal_code?: string | null
+          street?: string | null
         }
         Update: {
+          city?: string | null
+          country?: string | null
           created_at?: string
           created_by?: string | null
+          house_number?: string | null
           id?: string
           invite_code?: string
           name?: string
+          postal_code?: string | null
+          street?: string | null
         }
         Relationships: []
       }
@@ -212,6 +227,47 @@ export type Database = {
           },
           {
             foreignKeyName: "tasks_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waste_pickups: {
+        Row: {
+          created_at: string
+          family_id: string
+          id: string
+          label: string
+          pickup_date: string
+          provider: string | null
+          source: string
+          waste_type: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          id?: string
+          label: string
+          pickup_date: string
+          provider?: string | null
+          source?: string
+          waste_type?: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          id?: string
+          label?: string
+          pickup_date?: string
+          provider?: string | null
+          source?: string
+          waste_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waste_pickups_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
             referencedRelation: "families"
