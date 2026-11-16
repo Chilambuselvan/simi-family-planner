@@ -2,6 +2,15 @@
 // load it with `await import("@/lib/google-calendar.server")` inside server handlers.
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { decryptWith, encryptWith } from "./token-crypto";
+
+function tokenKey(): string {
+  const k = process.env["GOOGLE_TOKEN_ENCRYPTION_KEY"];
+  if (!k) throw new Error("GOOGLE_TOKEN_ENCRYPTION_KEY is not set");
+  return k;
+}
+const enc = (v: string) => encryptWith(tokenKey(), v);
+const dec = (v: string) => decryptWith(tokenKey(), v);
 
 const AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -103,16 +112,16 @@ export async function getAccessToken(googleAccountId: string): Promise<string> {
   if (error) throw error;
   if (!row) throw new GoogleApiError("not_connected", "This Google account needs to be reconnected.");
   if (row.access_token && row.access_token_expires_at && new Date(row.access_token_expires_at).getTime() > Date.now()) {
-    return row.access_token;
+    return dec(row.access_token);
   }
   const { id, secret } = credentials();
-  const t = await tokenRequest({ grant_type: "refresh_token", refresh_token: row.refresh_token, client_id: id, client_secret: secret });
+  const t = await tokenRequest({ grant_type: "refresh_token", refresh_token: dec(row.refresh_token), client_id: id, client_secret: secret });
   await supabaseAdmin
     .from("google_account_tokens")
     .update({
-      access_token: t.access_token,
+      access_token: enc(t.access_token),
       access_token_expires_at: expiryFrom(t),
-      ...(t.refresh_token ? { refresh_token: t.refresh_token } : {}),
+      ...(t.refresh_token ? { refresh_token: enc(t.refresh_token) } : {}),
       updated_at: new Date().toISOString(),
     })
     .eq("google_account_id", googleAccountId);
@@ -127,7 +136,7 @@ export async function revokeAccount(googleAccountId: string): Promise<void> {
     .maybeSingle();
   if (!data) return;
   // Best effort: if Google is unreachable the local delete still removes our copy.
-  await fetch(`${REVOKE_URL}?token=${encodeURIComponent(data.refresh_token)}`, { method: "POST" }).catch(() => undefined);
+  await fetch(`${REVOKE_URL}?token=${encodeURIComponent(dec(data.refresh_token))}`, { method: "POST" }).catch(() => undefined);
 }
 
 // ---------- Calendar API ----------
@@ -228,8 +237,8 @@ export async function handleOAuthCallback(request: Request): Promise<Response> {
 
     const { error: tokErr } = await supabaseAdmin.from("google_account_tokens").upsert({
       google_account_id: account.id,
-      refresh_token: t.refresh_token,
-      access_token: t.access_token,
+      refresh_token: enc(t.refresh_token),
+      access_token: enc(t.access_token),
       access_token_expires_at: expiryFrom(t),
       updated_at: new Date().toISOString(),
     });
