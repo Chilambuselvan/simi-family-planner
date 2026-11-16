@@ -5,6 +5,7 @@ import { AlertTriangle, CalendarClock, ShieldAlert, Wrench } from "lucide-react"
 import { meQuery, membersQuery, type Task } from "@/lib/queries";
 import { pageHead } from "@/lib/head";
 import { useDigest } from "@/lib/use-digest";
+import { NextPickupsList } from "@/components/app/next-pickups";
 import { daysUntil, maintenanceStatus, nextServiceDate, relativeDay, warrantyStatus } from "@/lib/household";
 import { TaskRow } from "@/components/app/task-row";
 import { TaskFormDialog } from "@/components/app/task-form-dialog";
@@ -22,11 +23,12 @@ function ReviewPage() {
   const { data: members } = useSuspenseQuery(membersQuery);
   const [range, setRange] = useState<7 | 30>(7);
   const [mine, setMine] = useState(false);
-  const { overdue, dueSoon, maintenance, warranties } = useDigest(range, mine ? me.profile.id : null);
+  const { overdue, dueSoon, maintenance, warranties, nextPickups } = useDigest(range, mine ? me.profile.id : null);
   const byId = Object.fromEntries(members.map((m) => [m.id, m]));
   const [editing, setEditing] = useState<Task | null>(null);
   const edit = (t: Task) => setEditing(t);
   const maintInRange = maintenance.filter((i) => daysUntil(nextServiceDate(i)!) <= range);
+  const binsInRange = nextPickups.filter((p) => daysUntil(p.pickup_date) <= range);
   const warrInRange = warranties.filter((i) => daysUntil(i.warranty_expiry!) <= Math.max(range, 60));
 
   return (
@@ -59,6 +61,9 @@ function ReviewPage() {
               <AlertPill level={warrantyStatus(i)}>{daysUntil(i.warranty_expiry!) < 0 ? "Expired" : relativeDay(i.warranty_expiry!)}</AlertPill>
             </Link>
           ))}
+        </Block>
+        <Block icon={<Trash2 className="size-5 text-waste-general" />} title="Next bin days" count={binsInRange.length} empty="No pickups in this period.">
+          <NextPickupsList pickups={binsInRange} />
         </Block>
       </div>
       <TaskFormDialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)} task={editing} />

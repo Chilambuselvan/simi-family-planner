@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { meQuery, membersQuery, type Task } from "@/lib/queries";
 import { pageHead } from "@/lib/head";
 import { useDigest } from "@/lib/use-digest";
-import { daysUntil, nextServiceDate, relativeDay, maintenanceStatus, warrantyStatus } from "@/lib/household";
+import { wasteStatus, daysUntil, nextServiceDate, relativeDay, maintenanceStatus, warrantyStatus } from "@/lib/household";
 import { TaskRow } from "@/components/app/task-row";
 import { TaskFormDialog } from "@/components/app/task-form-dialog";
 import { AlertPill } from "@/components/app/alert-pill";
+import { NextPickupsCard, binDayText } from "@/components/app/next-pickups";
 import { EmptyState } from "@/components/app/page-header";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +24,7 @@ function Dashboard() {
   const { data: me } = useSuspenseQuery(meQuery);
   const { data: members } = useSuspenseQuery(membersQuery);
   const [mine, setMine] = useState(false);
-  const { overdue, dueSoon, maintenance, warranties } = useDigest(7, mine ? me.profile.id : null);
+  const { overdue, dueSoon, maintenance, warranties, nextPickups } = useDigest(7, mine ? me.profile.id : null);
   const [editing, setEditing] = useState<Task | null>(null);
   const [open, setOpen] = useState(false);
   const byId = Object.fromEntries(members.map((m) => [m.id, m]));
@@ -43,6 +44,9 @@ function Dashboard() {
           <Stat n={overdue.length} label="overdue" warn={overdue.length > 0} />
           <Stat n={maintenance.filter((i) => maintenanceStatus(i) !== "ok").length + warranties.filter((i) => warrantyStatus(i) !== "ok").length} label="home alerts" />
         </div>
+        {nextPickups[0] && wasteStatus(nextPickups[0].pickup_date) === "soon" && (
+          <Link to="/waste" className="mt-4 inline-flex rounded-full bg-primary-foreground/15 px-4 py-1.5 text-sm font-medium backdrop-blur">🗑️ {binDayText(nextPickups[0])}</Link>
+        )}
       </section>
 
       <div className="mt-6 flex items-center justify-between gap-3">
@@ -70,6 +74,7 @@ function Dashboard() {
           <Link to="/tasks" className="text-sm font-medium text-primary hover:underline">See all tasks →</Link>
         </div>
         <aside className="grid content-start gap-4">
+          <NextPickupsCard pickups={nextPickups} />
           <div className="card-surface p-4">
             <h2 className="flex items-center gap-2 text-lg font-semibold"><Wrench className="size-5 text-terracotta" /> Maintenance</h2>
             {maintenance.length === 0 ? <p className="mt-2 text-sm text-muted-foreground">No services due in the next month.</p> : (
