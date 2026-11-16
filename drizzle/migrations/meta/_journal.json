@@ -43,6 +43,13 @@
       "when": 1794870720367,
       "tag": "0005_external_calendars_owner_only_writes",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794871186210,
+      "tag": "0006_item_categories_family_members_read",
+      "breakpoints": true
     }
   ]
 }
