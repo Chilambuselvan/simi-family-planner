@@ -6,7 +6,7 @@ import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { meQuery, membersQuery, tasksQuery, type Task } from "@/lib/queries";
+import { meQuery, membersQuery, tasksQuery, type Profile, type Task } from "@/lib/queries";
 import { pageHead } from "@/lib/head";
 import { toISODate } from "@/lib/household";
 import { TaskRow } from "@/components/app/task-row";
@@ -21,7 +21,7 @@ type TaskSearch = { assignee?: string | undefined; status?: string | undefined; 
 export const Route = createFileRoute("/_authenticated/tasks")({
   validateSearch: (s: Record<string, unknown>): TaskSearch => {
     const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
-    return { assignee: str(s.assignee), status: str(s.status), category: str(s.category), from: str(s.from), to: str(s.to), view: s.view === "review" ? "review" : undefined };
+    return { assignee: str(s["assignee"]), status: str(s["status"]), category: str(s["category"]), from: str(s["from"]), to: str(s["to"]), view: s["view"] === "review" ? "review" : undefined };
   },
   head: () => pageHead("Tasks", "All family tasks with filters by person, status, category and date."),
   component: TasksPage,
@@ -104,7 +104,7 @@ function PersonChip({ active, onClick, children }: { active: boolean; onClick: (
 }
 
 /** Everything due or overdue up to the end of this month, grouped by person. */
-function ReviewMode({ tasks, members, onEdit }: { tasks: Task[]; members: ReturnType<typeof useSuspenseQuery<typeof membersQuery>>["data"]; onEdit: (t: Task) => void }) {
+function ReviewMode({ tasks, members, onEdit }: { tasks: Task[]; members: Profile[]; onEdit: (t: Task) => void }) {
   const end = toISODate(endOfMonth(new Date()));
   const relevant = tasks.filter((t) => t.status !== "done" && t.due_date && t.due_date <= end);
   const groups = [...members.map((m) => ({ key: m.id, profile: m, list: relevant.filter((t) => t.assignee_id === m.id) })), { key: "none", profile: null, list: relevant.filter((t) => !t.assignee_id) }].filter((g) => g.list.length);
