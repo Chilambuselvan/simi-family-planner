@@ -24,6 +24,17 @@ export const WASTE_STYLES: Record<WasteType, { pill: string; dot: string }> = {
   other: { pill: "bg-muted text-muted-foreground", dot: "bg-muted-foreground" },
 };
 
+/** Distinct glyph per waste type so pickups read at a glance, not only by colour. */
+export const WASTE_ICONS: Record<WasteType, LucideIcon> = {
+  general: Trash2,
+  recycling: Recycle,
+  organic: Leaf,
+  paper: Newspaper,
+  bulky: Sofa,
+  seasonal: TreePine,
+  other: Package,
+};
+
 const RULES: [WasteType, string[]][] = [
   ["general", ["hausmüll", "restmüll"]],
   ["recycling", ["wertstoff", "gelbe", "verpackung"]],
