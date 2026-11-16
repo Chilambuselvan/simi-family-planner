@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
+import { Route as AuthenticatedInventoryIndexRouteImport } from './routes/_authenticated/inventory.index'
+import { Route as AuthenticatedInventoryItemIdRouteImport } from './routes/_authenticated/inventory.$itemId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,18 +41,34 @@ const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
   path: '/tasks',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInventoryIndexRoute =
+  AuthenticatedInventoryIndexRouteImport.update({
+    id: '/inventory/',
+    path: '/inventory/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedInventoryItemIdRoute =
+  AuthenticatedInventoryItemIdRouteImport.update({
+    id: '/inventory/$itemId',
+    path: '/inventory/$itemId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/tasks': typeof AuthenticatedTasksRoute
+  '/inventory/$itemId': typeof AuthenticatedInventoryItemIdRoute
+  '/inventory/': typeof AuthenticatedInventoryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/tasks': typeof AuthenticatedTasksRoute
+  '/inventory/$itemId': typeof AuthenticatedInventoryItemIdRoute
+  '/inventory': typeof AuthenticatedInventoryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +77,26 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
+  '/_authenticated/inventory/$itemId': typeof AuthenticatedInventoryItemIdRoute
+  '/_authenticated/inventory/': typeof AuthenticatedInventoryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/tasks'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/tasks'
+    | '/inventory/$itemId'
+    | '/inventory/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/tasks'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/tasks'
+    | '/inventory/$itemId'
+    | '/inventory'
   id:
     | '__root__'
     | '/'
@@ -72,6 +104,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/dashboard'
     | '/_authenticated/tasks'
+    | '/_authenticated/inventory/$itemId'
+    | '/_authenticated/inventory/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -117,17 +151,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTasksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/inventory/': {
+      id: '/_authenticated/inventory/'
+      path: '/inventory'
+      fullPath: '/inventory/'
+      preLoaderRoute: typeof AuthenticatedInventoryIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inventory/$itemId': {
+      id: '/_authenticated/inventory/$itemId'
+      path: '/inventory/$itemId'
+      fullPath: '/inventory/$itemId'
+      preLoaderRoute: typeof AuthenticatedInventoryItemIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
+  AuthenticatedInventoryItemIdRoute: typeof AuthenticatedInventoryItemIdRoute
+  AuthenticatedInventoryIndexRoute: typeof AuthenticatedInventoryIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
+  AuthenticatedInventoryItemIdRoute: AuthenticatedInventoryItemIdRoute,
+  AuthenticatedInventoryIndexRoute: AuthenticatedInventoryIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
