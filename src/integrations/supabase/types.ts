@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      external_calendars: {
+        Row: {
+          color: string
+          created_at: string
+          enabled: boolean
+          family_id: string
+          google_account_id: string
+          google_calendar_id: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          enabled?: boolean
+          family_id: string
+          google_account_id: string
+          google_calendar_id: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          enabled?: boolean
+          family_id?: string
+          google_account_id?: string
+          google_calendar_id?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "external_calendars_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "external_calendars_google_account_id_fkey"
+            columns: ["google_account_id"]
+            isOneToOne: false
+            referencedRelation: "google_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       families: {
         Row: {
           city: string | null
@@ -52,6 +100,70 @@ export type Database = {
           street?: string | null
         }
         Relationships: []
+      }
+      google_account_tokens: {
+        Row: {
+          access_token: string | null
+          access_token_expires_at: string | null
+          google_account_id: string
+          refresh_token: string
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string | null
+          access_token_expires_at?: string | null
+          google_account_id: string
+          refresh_token: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string | null
+          access_token_expires_at?: string | null
+          google_account_id?: string
+          refresh_token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_account_tokens_google_account_id_fkey"
+            columns: ["google_account_id"]
+            isOneToOne: true
+            referencedRelation: "google_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_accounts: {
+        Row: {
+          created_at: string
+          family_id: string
+          google_email: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          family_id: string
+          google_email: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          family_id?: string
+          google_email?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_accounts_family_id_fkey"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       item_categories: {
         Row: {

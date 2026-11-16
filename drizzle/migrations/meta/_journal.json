@@ -29,6 +29,13 @@
       "when": 1794840270457,
       "tag": "0003_waste_source_pdf_import",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794857775158,
+      "tag": "0004_google_calendar_sync_tables",
+      "breakpoints": true
     }
   ]
 }
