@@ -1,3 +1,5 @@
+import { Leaf, Newspaper, Package, Recycle, Sofa, Trash2, TreePine, type LucideIcon } from "lucide-react";
+
 export const WASTE_TYPES = ["general", "recycling", "organic", "paper", "bulky", "seasonal", "other"] as const;
 export type WasteType = (typeof WASTE_TYPES)[number];
 

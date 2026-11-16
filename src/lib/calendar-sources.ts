@@ -13,6 +13,7 @@ export type CalendarEvent = {
   date: string; // yyyy-MM-dd
   kind: "task" | "maintenance" | "warranty" | "waste" | "external";
   source: string;
+  wasteType?: WasteType;
   assigneeId?: string | null;
   done?: boolean;
   href?: { to: "/inventory/$itemId"; params: { itemId: string } } | { to: "/tasks" } | { to: "/waste" };
@@ -71,6 +72,7 @@ export const wastePickupsSource: CalendarSource = {
       date: w.pickup_date,
       kind: "waste",
       source: "waste",
+      wasteType: w.waste_type as WasteType,
       href: { to: "/waste" },
     })),
 };
