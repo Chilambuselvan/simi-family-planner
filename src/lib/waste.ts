@@ -107,3 +107,23 @@ export function eventsToPickups(events: IcsEvent[]): PickupDraft[] {
   }
   return out;
 }
+
+export const BERLIN_RECYCLING = "Berlin Recycling";
+
+/** Parse Berlin Recycling Kundenportal text: "DD.MM.YYYY <Tonne>" rows. Unknown bin words are skipped. */
+export function parseBerlinRecyclingText(text: string): PickupDraft[] {
+  const re = /(\d{2})\.(\d{2})\.(\d{4})\s+([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß\- ]*)/g;
+  const seen = new Set<string>();
+  const out: PickupDraft[] = [];
+  for (const m of text.normalize("NFC").matchAll(re)) {
+    const label = (m[4] ?? "").trim().split(/\s{2,}/)[0]!.trim();
+    const waste_type = categorizeWaste(label);
+    if (waste_type === "other" && !/glas/i.test(label)) continue;
+    const pickup_date = `${m[3]}-${m[2]}-${m[1]}`;
+    const key = `${waste_type}|${pickup_date}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push({ waste_type, label, pickup_date, provider: BERLIN_RECYCLING });
+  }
+  return out;
+}

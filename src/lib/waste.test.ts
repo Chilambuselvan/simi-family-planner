@@ -66,3 +66,18 @@ describe("waste alerts", () => {
     expect(next.map((p) => p.pickup_date)).toEqual(["2026-11-18", "2026-12-01"]);
   });
 });
+
+import { parseBerlinRecyclingText } from "./waste";
+describe("berlin recycling pdf text", () => {
+  const TEXT = "Kundenportal\nPetkusser Str. 18 a, 12307 Berlin\nDatum  Tonne\n28.10.2026  Papier\n25.11.2026  Papier\n22.12.2026  Papier\n22.12.2026  Papier\n";
+  it("parses date + bin rows", () => {
+    expect(parseBerlinRecyclingText(TEXT)).toEqual([
+      { waste_type: "paper", label: "Papier", pickup_date: "2026-10-28", provider: "Berlin Recycling" },
+      { waste_type: "paper", label: "Papier", pickup_date: "2026-11-25", provider: "Berlin Recycling" },
+      { waste_type: "paper", label: "Papier", pickup_date: "2026-12-22", provider: "Berlin Recycling" },
+    ]);
+  });
+  it("finds nothing in the holiday-shift PDF text", () => {
+    expect(parseBerlinRecyclingText("Vor- und Nachladetage\nFeiertag 25.12.2026 wird nachgeladen am 28.12.2026")).toEqual([]);
+  });
+});

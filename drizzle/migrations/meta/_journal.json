@@ -22,6 +22,13 @@
       "when": 1794833894571,
       "tag": "0002_waste_pickups_and_address",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794840270457,
+      "tag": "0003_waste_source_pdf_import",
+      "breakpoints": true
     }
   ]
 }

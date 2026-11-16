@@ -1,0 +1,2 @@
+ALTER TABLE public.waste_pickups DROP CONSTRAINT IF EXISTS waste_pickups_source_check;
+ALTER TABLE public.waste_pickups ADD CONSTRAINT waste_pickups_source_check CHECK (source IN ('manual','ics_import','pdf_import'));
