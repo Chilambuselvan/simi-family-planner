@@ -17,6 +17,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedFamilyRouteImport } from './routes/_authenticated/family'
 import { Route as AuthenticatedReviewRouteImport } from './routes/_authenticated/review'
 import { Route as AuthenticatedTasksRouteImport } from './routes/_authenticated/tasks'
+import { Route as AuthenticatedWasteRouteImport } from './routes/_authenticated/waste'
 import { Route as AuthenticatedInventoryIndexRouteImport } from './routes/_authenticated/inventory.index'
 import { Route as AuthenticatedInventoryItemIdRouteImport } from './routes/_authenticated/inventory.$itemId'
 
@@ -59,6 +60,11 @@ const AuthenticatedTasksRoute = AuthenticatedTasksRouteImport.update({
   path: '/tasks',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWasteRoute = AuthenticatedWasteRouteImport.update({
+  id: '/waste',
+  path: '/waste',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedInventoryIndexRoute =
   AuthenticatedInventoryIndexRouteImport.update({
     id: '/inventory/',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/family': typeof AuthenticatedFamilyRoute
   '/review': typeof AuthenticatedReviewRoute
   '/tasks': typeof AuthenticatedTasksRoute
+  '/waste': typeof AuthenticatedWasteRoute
   '/inventory/$itemId': typeof AuthenticatedInventoryItemIdRoute
   '/inventory/': typeof AuthenticatedInventoryIndexRoute
 }
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/family': typeof AuthenticatedFamilyRoute
   '/review': typeof AuthenticatedReviewRoute
   '/tasks': typeof AuthenticatedTasksRoute
+  '/waste': typeof AuthenticatedWasteRoute
   '/inventory/$itemId': typeof AuthenticatedInventoryItemIdRoute
   '/inventory': typeof AuthenticatedInventoryIndexRoute
 }
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/_authenticated/family': typeof AuthenticatedFamilyRoute
   '/_authenticated/review': typeof AuthenticatedReviewRoute
   '/_authenticated/tasks': typeof AuthenticatedTasksRoute
+  '/_authenticated/waste': typeof AuthenticatedWasteRoute
   '/_authenticated/inventory/$itemId': typeof AuthenticatedInventoryItemIdRoute
   '/_authenticated/inventory/': typeof AuthenticatedInventoryIndexRoute
 }
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/family'
     | '/review'
     | '/tasks'
+    | '/waste'
     | '/inventory/$itemId'
     | '/inventory/'
   fileRoutesByTo: FileRoutesByTo
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/family'
     | '/review'
     | '/tasks'
+    | '/waste'
     | '/inventory/$itemId'
     | '/inventory'
   id:
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/_authenticated/family'
     | '/_authenticated/review'
     | '/_authenticated/tasks'
+    | '/_authenticated/waste'
     | '/_authenticated/inventory/$itemId'
     | '/_authenticated/inventory/'
   fileRoutesById: FileRoutesById
@@ -208,6 +220,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTasksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/waste': {
+      id: '/_authenticated/waste'
+      path: '/waste'
+      fullPath: '/waste'
+      preLoaderRoute: typeof AuthenticatedWasteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inventory/': {
       id: '/_authenticated/inventory/'
       path: '/inventory'
@@ -231,6 +250,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFamilyRoute: typeof AuthenticatedFamilyRoute
   AuthenticatedReviewRoute: typeof AuthenticatedReviewRoute
   AuthenticatedTasksRoute: typeof AuthenticatedTasksRoute
+  AuthenticatedWasteRoute: typeof AuthenticatedWasteRoute
   AuthenticatedInventoryItemIdRoute: typeof AuthenticatedInventoryItemIdRoute
   AuthenticatedInventoryIndexRoute: typeof AuthenticatedInventoryIndexRoute
 }
@@ -241,6 +261,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFamilyRoute: AuthenticatedFamilyRoute,
   AuthenticatedReviewRoute: AuthenticatedReviewRoute,
   AuthenticatedTasksRoute: AuthenticatedTasksRoute,
+  AuthenticatedWasteRoute: AuthenticatedWasteRoute,
   AuthenticatedInventoryItemIdRoute: AuthenticatedInventoryItemIdRoute,
   AuthenticatedInventoryIndexRoute: AuthenticatedInventoryIndexRoute,
 }

@@ -2,17 +2,19 @@ import { Link } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useDigest } from "@/lib/use-digest";
-import { maintenanceStatus, warrantyStatus } from "@/lib/household";
+import { maintenanceStatus, warrantyStatus, wasteStatus } from "@/lib/household";
 
 /** In-app reminder indicator. Push notifications can hook into the same digest later. */
 export function NotificationBell() {
-  const { overdue, items, alertCount } = useDigest(7);
+  const { overdue, items, alertCount, nextPickups } = useDigest(7);
   const maint = items.filter((i) => maintenanceStatus(i) !== "ok").length;
   const warr = items.filter((i) => warrantyStatus(i) === "soon").length;
+  const bins = nextPickups.filter((p) => wasteStatus(p.pickup_date) === "soon").length;
   const rows = [
     { n: overdue.length, label: "overdue task", to: "/tasks" as const },
     { n: maint, label: "item needs servicing", plural: "items need servicing", to: "/inventory" as const },
     { n: warr, label: "warranty expiring soon", plural: "warranties expiring soon", to: "/inventory" as const },
+    { n: bins, label: "bin pickup in the next 2 days", plural: "bin pickups in the next 2 days", to: "/waste" as const },
   ].filter((r) => r.n > 0);
   return (
     <Popover>

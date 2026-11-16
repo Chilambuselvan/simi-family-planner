@@ -79,3 +79,22 @@ export function relativeDay(date: string, today: Date = new Date()) {
   if (d < 7) return format(parseISO(date), "EEEE");
   return format(parseISO(date), "d MMM yyyy");
 }
+
+/** A bin pickup counts as "soon" (put the bin out) within this many days. */
+export const WASTE_SOON_DAYS = 2;
+
+export function wasteStatus(pickupDate: string, today: Date = new Date()): AlertLevel {
+  const d = daysUntil(pickupDate, today);
+  return d >= 0 && d <= WASTE_SOON_DAYS ? "soon" : "ok";
+}
+
+/** Next upcoming (today or later) pickup for each waste type, soonest first. */
+export function nextPickupByType<T extends { waste_type: string; pickup_date: string }>(pickups: T[], today: Date = new Date()): T[] {
+  const best: Record<string, T> = {};
+  for (const p of pickups) {
+    if (daysUntil(p.pickup_date, today) < 0) continue;
+    const cur = best[p.waste_type];
+    if (!cur || p.pickup_date < cur.pickup_date) best[p.waste_type] = p;
+  }
+  return Object.values(best).sort((a, b) => (a.pickup_date < b.pickup_date ? -1 : 1));
+}

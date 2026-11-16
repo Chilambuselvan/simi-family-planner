@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect, useNavigate } from "@tanstack/react-router";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Suspense } from "react";
-import { Boxes, CalendarDays, ClipboardCheck, Home, ListChecks, LogOut, Users } from "lucide-react";
+import { Boxes, CalendarDays, ClipboardCheck, Home, ListChecks, LogOut, Trash2, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { meQuery } from "@/lib/queries";
 import { MemberAvatar } from "@/components/app/member-avatar";
@@ -25,6 +25,7 @@ const nav = [
   { to: "/tasks", label: "Tasks", icon: ListChecks },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
   { to: "/inventory", label: "Inventory", icon: Boxes },
+  { to: "/waste", label: "Bins", icon: Trash2 },
   { to: "/review", label: "Review", icon: ClipboardCheck },
 ] as const;
 
@@ -88,7 +89,7 @@ function AppLayout() {
           <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}><Outlet /></Suspense>
         </main>
       </div>
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         {nav.map((n) => (
           <Link key={n.to} to={n.to} className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-muted-foreground" activeProps={{ className: "!text-primary" }}>
             <n.icon className="size-5" />{n.label}
