@@ -2,14 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
-import { Upload } from "lucide-react";
+import { FileText, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { meQuery, wastePickupsQuery } from "@/lib/queries";
 import { pageHead } from "@/lib/head";
 import { daysUntil, nextPickupByType, relativeDay, wasteStatus } from "@/lib/household";
-import { eventsToPickups, parseIcs, WASTE_LABELS, WASTE_STYLES, WASTE_TYPES, type WasteType } from "@/lib/waste";
+import { eventsToPickups, parseBerlinRecyclingText, parseIcs, type PickupDraft, WASTE_LABELS, WASTE_STYLES, WASTE_TYPES, type WasteType } from "@/lib/waste";
 import { PageHeader, EmptyState } from "@/components/app/page-header";
 import { AlertPill } from "@/components/app/alert-pill";
 import { WasteIcon } from "@/components/app/waste-icon";
@@ -26,29 +26,44 @@ function WastePage() {
   const { data: pickups } = useSuspenseQuery(wastePickupsQuery);
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
+  const pdfRef = useRef<HTMLInputElement>(null);
   const [filter, setFilter] = useState<WasteType | "all">("all");
   const [summary, setSummary] = useState<{ imported: number; skipped: number } | null>(null);
 
+  const savePickups = async (drafts: PickupDraft[], total: number, source: "ics_import" | "pdf_import") => {
+    const familyId = me.profile.family_id!;
+    const existing = new Set(pickups.map((p) => `${p.waste_type}|${p.pickup_date}`));
+    const fresh = drafts.filter((d) => !existing.has(`${d.waste_type}|${d.pickup_date}`));
+    if (fresh.length) {
+      const { error } = await supabase.from("waste_pickups").upsert(
+        fresh.map((d) => ({ ...d, family_id: familyId, source })),
+        { onConflict: "family_id,waste_type,pickup_date", ignoreDuplicates: true },
+      );
+      if (error) throw error;
+    }
+    return { imported: fresh.length, skipped: total - fresh.length };
+  };
+  const onImported = (s: { imported: number; skipped: number }) => { setSummary(s); qc.invalidateQueries({ queryKey: ["waste_pickups"] }); toast.success(`${s.imported} pickups imported`); };
+
   const importIcs = useMutation({
     mutationFn: async (file: File) => {
-      const familyId = me.profile.family_id!;
       const parsed = parseIcs(await file.text());
-      const drafts = eventsToPickups(parsed);
-      const events = parsed.length;
-      if (events === 0) throw new Error("No events found in this file. Is it an .ics calendar?");
-      const existing = new Set(pickups.map((p) => `${p.waste_type}|${p.pickup_date}`));
-      const fresh = drafts.filter((d) => !existing.has(`${d.waste_type}|${d.pickup_date}`));
-      if (fresh.length) {
-        const { error } = await supabase.from("waste_pickups").upsert(
-          fresh.map((d) => ({ ...d, family_id: familyId, source: "ics_import" })),
-          { onConflict: "family_id,waste_type,pickup_date", ignoreDuplicates: true },
-        );
-        if (error) throw error;
-      }
-      return { imported: fresh.length, skipped: events - fresh.length };
+      if (parsed.length === 0) throw new Error("No events found in this file. Is it an .ics calendar?");
+      return savePickups(eventsToPickups(parsed), parsed.length, "ics_import");
     },
-    onSuccess: (s) => { setSummary(s); qc.invalidateQueries({ queryKey: ["waste_pickups"] }); toast.success(`${s.imported} pickups imported`); },
+    onSuccess: onImported,
     onError: (e: Error) => toast.error(e.message),
+  });
+
+  const importPdf = useMutation({
+    mutationFn: async (file: File) => {
+      const { extractPdfText } = await import("@/lib/pdf-text");
+      const drafts = parseBerlinRecyclingText(await extractPdfText(file));
+      if (drafts.length === 0) throw new Error("This PDF doesn't contain pickup dates. In the Berlin Recycling Kundenportal, look up your address and save the results table (Datum / Tonne) as a PDF, then import that.");
+      return savePickups(drafts, drafts.length, "pdf_import");
+    },
+    onSuccess: onImported,
+    onError: (e: Error) => toast.error(e.message, { duration: 10000 }),
   });
 
   const upcoming = pickups.filter((p) => daysUntil(p.pickup_date) >= 0 && (filter === "all" || p.waste_type === filter));
@@ -66,6 +81,8 @@ function WastePage() {
         actions={<>
           <input ref={fileRef} type="file" accept=".ics,text/calendar" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) importIcs.mutate(f); e.target.value = ""; }} />
           <Button onClick={() => fileRef.current?.click()} disabled={importIcs.isPending}><Upload /> {importIcs.isPending ? "Importing…" : "Import calendar (.ics)"}</Button>
+          <input ref={pdfRef} type="file" accept=".pdf,application/pdf" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) importPdf.mutate(f); e.target.value = ""; }} />
+          <Button variant="outline" onClick={() => pdfRef.current?.click()} disabled={importPdf.isPending}><FileText /> {importPdf.isPending ? "Reading PDF…" : "Import PDF (Berlin Recycling)"}</Button>
         </>} />
 
       {summary && (
