@@ -12,8 +12,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) throw redirect({ to: "/auth" });
+    // Read the session saved on this device (refreshing it if needed). getUser() needs the network,
+    // so a phone waking up offline or on flaky signal looked "signed out" and bounced to /auth.
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) throw redirect({ to: "/auth" });
   },
   loader: ({ context }) => context.queryClient.ensureQueryData(meQuery),
   component: AppLayout,

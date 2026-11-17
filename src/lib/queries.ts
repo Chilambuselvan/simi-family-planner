@@ -14,7 +14,8 @@ export type GoogleAccount = Tables<"google_accounts"> & { external_calendars: Ex
 export const meQuery = queryOptions({
   queryKey: ["me"],
   queryFn: async () => {
-    const { data: auth } = await supabase.auth.getUser();
+    const { data: sess } = await supabase.auth.getSession();
+    const auth = { user: sess.session?.user };
     if (!auth.user) throw new Error("Not signed in");
     const { data: profile, error } = await supabase.from("profiles").select("*").eq("id", auth.user.id).single();
     if (error) throw error;
