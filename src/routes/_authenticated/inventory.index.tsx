@@ -1,12 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { MapPin, Plus, Search } from "lucide-react";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { MapPin, Plus, Search, Upload } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { categoriesQuery, itemsQuery } from "@/lib/queries";
+import { categoriesQuery, itemsQuery, meQuery } from "@/lib/queries";
 import { pageHead } from "@/lib/head";
 import { maintenanceStatus, warrantyStatus } from "@/lib/household";
+import { parseInventoryCsv } from "@/lib/inventory-import";
 import { ItemFormDialog } from "@/components/app/item-form-dialog";
 import { ItemPhoto } from "@/components/app/item-photo";
 import { AlertPill } from "@/components/app/alert-pill";
@@ -21,20 +24,52 @@ export const Route = createFileRoute("/_authenticated/inventory/")({
 function InventoryPage() {
   const { data: items } = useSuspenseQuery(itemsQuery);
   const { data: categories } = useSuspenseQuery(categoriesQuery);
+  const { data: me } = useSuspenseQuery(meQuery);
+  const qc = useQueryClient();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string | null>(null);
   const [attention, setAttention] = useState(false);
+  const csvRef = useRef<HTMLInputElement>(null);
   const usedCats = categories.filter((c) => items.some((i) => i.category === c.name));
   const list = items.filter((i) =>
     (!cat || i.category === cat) &&
     (!q || `${i.name} ${i.location ?? ""}`.toLowerCase().includes(q.toLowerCase())) &&
     (!attention || maintenanceStatus(i) !== "ok" || warrantyStatus(i) !== "ok"));
 
+  const importCsv = useMutation({
+    mutationFn: async (file: File) => {
+      const { drafts, errors } = parseInventoryCsv(await file.text());
+      if (drafts.length === 0) throw new Error(errors[0] ?? "No rows found in this file.");
+      // Skip names already in the inventory so re-importing the same file is harmless.
+      const existing = new Set(items.map((i) => i.name.trim().toLowerCase()));
+      const fresh = drafts.filter((d) => !existing.has(d.name.toLowerCase()));
+      if (fresh.length) {
+        const { error } = await supabase.from("items").insert(fresh.map((d) => ({ ...d, family_id: me.profile.family_id!, created_by: me.profile.id })));
+        if (error) throw error;
+      }
+      return { imported: fresh.length, skipped: drafts.length - fresh.length, rowErrors: errors };
+    },
+    onSuccess: ({ imported, skipped, rowErrors }) => {
+      qc.invalidateQueries({ queryKey: ["items"] });
+      toast.success(`${imported} item${imported === 1 ? "" : "s"} imported${skipped ? `, ${skipped} already in your inventory` : ""}`);
+      rowErrors.forEach((e) => toast.warning(e));
+    },
+    onError: (e: Error) => toast.error(e.message, { duration: 10000 }),
+  });
+
   return (
     <div>
-      <PageHeader title="Inventory" subtitle="Your home's appliances, systems and vehicles." actions={<Button className="rounded-full" onClick={() => setOpen(true)}><Plus /> Add item</Button>} />
+      <PageHeader title="Inventory" subtitle="Your home's appliances, systems and vehicles." actions={
+        <div className="flex gap-2">
+          <input ref={csvRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) importCsv.mutate(f); e.target.value = ""; }} />
+          <Button variant="outline" className="rounded-full" onClick={() => csvRef.current?.click()} disabled={importCsv.isPending}>
+            <Upload /> {importCsv.isPending ? "Importing…" : "Import CSV"}
+          </Button>
+          <Button className="rounded-full" onClick={() => setOpen(true)}><Plus /> Add item</Button>
+        </div>
+      } />
       <div className="relative mb-3"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input aria-label="Search items" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name or location" className="h-11 rounded-xl pl-9" /></div>
       <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
         <Chip active={!cat && !attention} onClick={() => { setCat(null); setAttention(false); }}>All</Chip>
@@ -42,7 +77,7 @@ function InventoryPage() {
         {usedCats.map((c) => <Chip key={c.id} active={cat === c.name} onClick={() => setCat(cat === c.name ? null : c.name)}>{c.name}</Chip>)}
       </div>
       {list.length === 0 ? (
-        <EmptyState title={items.length ? "No items match" : "No items yet"} hint={items.length ? undefined : "Start with the big ones: solar system, heat pump, EV charger."} action={!items.length && <Button onClick={() => setOpen(true)}><Plus /> Add first item</Button>} />
+        <EmptyState title={items.length ? "No items match" : "No items yet"} hint={items.length ? undefined : "Start with the big ones: solar system, heat pump, EV charger. Or import a CSV from Excel/Notes."} action={!items.length && <Button onClick={() => setOpen(true)}><Plus /> Add first item</Button>} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((i) => {
