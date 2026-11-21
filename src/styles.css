@@ -130,8 +130,18 @@
   --member-mustard: oklch(0.74 0.13 85);
   --member-plum: oklch(0.5 0.1 340);
   --member-slate: oklch(0.5 0.03 250);
-  --shadow-soft: 0 1px 2px oklch(0.3 0.03 160 / 6%), 0 8px 24px -12px oklch(0.3 0.03 160 / 18%);
+  /* A thin bright line along the top edge plus a soft, layered drop shadow — the combination
+     that reads as "glossy" on a rounded surface (macOS panels, buttons, toolbars). */
+  --shadow-soft: inset 0 1px 0 0 oklch(1 0 0 / 55%), 0 1px 2px oklch(0.3 0.03 160 / 6%), 0 8px 24px -12px oklch(0.3 0.03 160 / 18%);
+  --shadow-glass: inset 0 1px 0 0 oklch(1 0 0 / 60%), 0 1px 1px oklch(0.3 0.03 160 / 5%), 0 16px 40px -14px oklch(0.3 0.03 160 / 28%);
+  --shadow-control: inset 0 1px 0 0 oklch(1 0 0 / 35%), inset 0 -1px 0 0 oklch(0.2 0.02 160 / 8%), 0 1px 2px oklch(0.2 0.02 160 / 14%);
   --gradient-hero: linear-gradient(135deg, oklch(0.42 0.08 160), oklch(0.5 0.09 140));
+  /* Soft, fixed colour washes behind the translucent chrome — vibrancy needs something varied
+     to blur, the same way macOS panels pick up colour from the desktop behind them. */
+  --gradient-ambient:
+    radial-gradient(60rem 36rem at 8% -10%, oklch(0.78 0.08 150 / 30%), transparent 60%),
+    radial-gradient(50rem 32rem at 100% 0%, oklch(0.84 0.1 55 / 22%), transparent 55%),
+    radial-gradient(60rem 40rem at 50% 110%, oklch(0.8 0.07 90 / 22%), transparent 60%);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -154,6 +164,8 @@
 
   body {
     background-color: var(--color-background);
+    background-image: var(--gradient-ambient);
+    background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -172,4 +184,20 @@
   border: 1px solid var(--color-border);
   border-radius: calc(var(--radius) + 4px);
   box-shadow: var(--shadow-soft);
+}
+
+/* Frosted-glass chrome: sidebar, top bar, menus, dialogs, bottom nav. Translucent enough
+   that the ambient colour wash behind it shows through and blurs, like macOS vibrancy. */
+@utility glass-panel {
+  background-color: color-mix(in oklab, var(--color-card) 72%, transparent);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border-color: color-mix(in oklab, var(--color-border) 55%, transparent);
+  box-shadow: var(--shadow-glass);
+}
+
+/* A hairline top highlight and a faint bottom shade, the way a glossy physical control
+   catches light — meant for buttons and other small raised controls, not large panels. */
+@utility control-glossy {
+  box-shadow: var(--shadow-control);
 }

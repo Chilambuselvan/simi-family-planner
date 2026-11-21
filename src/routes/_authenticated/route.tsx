@@ -50,29 +50,29 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen md:flex">
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar p-4 md:flex">
+      <aside className="glass-panel sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r p-4 md:flex">
         <Link to="/dashboard" className="mb-8 flex items-center gap-2 px-2 font-display text-xl font-bold">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Home className="size-5" /></span>HomeBase
+          <span className="control-glossy flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Home className="size-5" /></span>HomeBase
         </Link>
         <nav className="grid gap-1">
           {nav.map((n) => (
-            <Link key={n.to} to={n.to} className="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent" activeProps={{ className: "bg-sidebar-accent !text-sidebar-foreground" }}>
+            <Link key={n.to} to={n.to} className="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/70" activeProps={{ className: "control-glossy !bg-sidebar-accent !text-sidebar-foreground" }}>
               <n.icon className="size-5" />{n.label}
             </Link>
           ))}
-          <Link to="/family" className="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent" activeProps={{ className: "bg-sidebar-accent !text-sidebar-foreground" }}>
+          <Link to="/family" className="flex items-center gap-3 rounded-xl px-3 py-2.5 font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent/70" activeProps={{ className: "control-glossy !bg-sidebar-accent !text-sidebar-foreground" }}>
             <Users className="size-5" />Family & settings
           </Link>
         </nav>
-        <div className="mt-auto rounded-xl bg-card p-3 text-sm">
+        <div className="card-surface mt-auto p-3 text-sm">
           <p className="font-semibold">{me.family?.name}</p>
           <p className="text-muted-foreground">Family home</p>
         </div>
       </aside>
       <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/85 px-4 py-3 backdrop-blur md:px-8">
+        <header className="glass-panel sticky top-0 z-30 flex items-center justify-between border-b px-4 py-3 md:px-8">
           <Link to="/dashboard" className="flex items-center gap-2 font-display text-lg font-bold md:invisible">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Home className="size-4" /></span>HomeBase
+            <span className="control-glossy flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"><Home className="size-4" /></span>HomeBase
           </Link>
           <div className="flex items-center gap-1">
             <Suspense fallback={null}><NotificationBell /></Suspense>
@@ -91,9 +91,9 @@ function AppLayout() {
           <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}><Outlet /></Suspense>
         </main>
       </div>
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <nav className="glass-panel fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t pb-[env(safe-area-inset-bottom)] md:hidden">
         {nav.map((n) => (
-          <Link key={n.to} to={n.to} className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-muted-foreground" activeProps={{ className: "!text-primary" }}>
+          <Link key={n.to} to={n.to} className="flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors" activeProps={{ className: "!text-primary" }}>
             <n.icon className="size-5" />{n.label}
           </Link>
         ))}
